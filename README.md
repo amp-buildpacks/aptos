@@ -6,7 +6,8 @@ A Cloud Native Buildpack that provides the Aptos Tool Suite
 
 | Environment Variable      | Description                                                                                                                                                                                                                                                                                       |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `$BP_APTOS_VERSION` | Configure the version of Aptos to install. It can be a specific version or a wildcard like `1.*`. It defaults to the latest `1.*` version. |
+| `$BP_APTOS_VERSION` | Configure the version of Aptos to install. It can be a specific version or a wildcard like `1.*`. It defaults to the latest `2.4.0` version. |
+| `$BP_ENABLE_APTOS_PROCESS` | Enable the Aptos run process. It defaults to `aptos move publish --skip-fetch-latest-git-deps --assume-yes`. |
 
 
 ## Usage
