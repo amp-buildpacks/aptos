@@ -40,8 +40,19 @@ api = "0.8"
   [[metadata.configurations]]
     build = true
     default = "true"
-    description = "Enable the Aptos run process"
-    name = "BP_ENABLE_APTOS_PROCESS"
+    description = "Enable the Aptos deploy"
+    name = "BP_ENABLE_APTOS_DEPLOY"
+  
+  [[metadata.configurations]]
+    build = true
+    description = "Configure the wallet private key for Aptos deploy"
+    name = "BP_APTOS_DEPLOY_PRIVATE_KEY"
+
+  [[metadata.configurations]]
+    build = true
+    default = "devnet"
+    description = "Configure the network for Aptos deploy"
+    name = "BP_APTOS_DEPLOY_NETWORK"
 
   [[metadata.dependencies]]
     id = "aptos"

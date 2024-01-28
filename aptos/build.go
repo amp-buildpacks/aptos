@@ -59,7 +59,7 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 			return libcnb.BuildResult{}, fmt.Errorf("unable to find dependency\n%w", err)
 		}
 
-		aptosLayer := NewAptos(dependency, dc)
+		aptosLayer := NewAptos(dependency, dc, cr)
 		aptosLayer.Logger = b.Logger
 
 		result.Processes, err = aptosLayer.BuildProcessTypes(cr, context.Application)

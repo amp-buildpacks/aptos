@@ -7,8 +7,9 @@ A Cloud Native Buildpack that provides the Aptos Tool Suite
 | Environment Variable      | Description                                                                                                                                                                                                                                                                                       |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `$BP_APTOS_VERSION` | Configure the version of Aptos to install. It can be a specific version or a wildcard like `1.*`. It defaults to the latest `2.4.0` version. |
-| `$BP_ENABLE_APTOS_PROCESS` | Enable the Aptos run process. It defaults to `aptos move publish --skip-fetch-latest-git-deps --assume-yes`. |
-
+| `$BP_ENABLE_APTOS_DEPLOY` | Enable the Aptos deploy. It defaults to `aptos move publish --skip-fetch-latest-git-deps --assume-yes`. |
+| `$BP_APTOS_DEPLOY_PRIVATE_KEY` | Configure the wallet private key for Aptos deploy. `It defaults to must be specified.` |
+| `$BP_APTOS_DEPLOY_NETWORK` | Configure the network for Aptos deploy. It defaults to `devnet`. |
 
 ## Usage
 
