@@ -31,11 +31,12 @@ import (
 
 type Aptos struct {
 	LayerContributor libpak.DependencyLayerContributor
+	configResolver   libpak.ConfigurationResolver
 	Logger           bard.Logger
 	Executor         effect.Executor
 }
 
-func NewAptos(dependency libpak.BuildpackDependency, cache libpak.DependencyCache) Aptos {
+func NewAptos(dependency libpak.BuildpackDependency, cache libpak.DependencyCache, configResolver libpak.ConfigurationResolver) Aptos {
 	contributor := libpak.NewDependencyLayerContributor(dependency, cache, libcnb.LayerTypes{
 		Build:  true,
 		Cache:  true,
@@ -43,6 +44,7 @@ func NewAptos(dependency libpak.BuildpackDependency, cache libpak.DependencyCach
 	})
 	return Aptos{
 		LayerContributor: contributor,
+		configResolver:   configResolver,
 		Executor:         effect.NewExecutor(),
 	}
 }
@@ -87,9 +89,14 @@ func (r Aptos) Contribute(layer libcnb.Layer) (libcnb.Layer, error) {
 
 		// compile contract
 		args := []string{"move", "compile"}
-		r.Logger.Bodyf("Compiling contracts by '%s %s'", PlanEntryAptos, args)
+		r.Logger.Bodyf("Compiling contracts")
 		if _, err := r.Execute(PlanEntryAptos, args); err != nil {
 			return libcnb.Layer{}, fmt.Errorf("unable to compile contract\n%w", err)
+		}
+
+		// initialize wallet for deploy
+		if ok, err := r.InitializeDeployWallet(); !ok {
+			return libcnb.Layer{}, fmt.Errorf("unable to initialize deploy wallet\n%w", err)
 		}
 
 		layer.LaunchEnvironment.Append("PATH", ":", bin)
@@ -114,8 +121,14 @@ func (r Aptos) Execute(command string, args []string) (*bytes.Buffer, error) {
 func (r Aptos) BuildProcessTypes(cr libpak.ConfigurationResolver, app libcnb.Application) ([]libcnb.Process, error) {
 	processes := []libcnb.Process{}
 
-	enableDeploy := cr.ResolveBool("BP_ENABLE_APTOS_PROCESS")
+	enableDeploy := cr.ResolveBool("BP_ENABLE_APTOS_DEPLOY")
 	if enableDeploy {
+		deployPrivateKey, _ := r.configResolver.Resolve("BP_APTOS_DEPLOY_PRIVATE_KEY")
+		if deployPrivateKey == "" {
+			return processes, fmt.Errorf("BP_APTOS_DEPLOY_PRIVATE_KEY must be specified")
+		}
+
+		// publish module
 		processes = append(processes, libcnb.Process{
 			Type:      PlanEntryAptos,
 			Command:   PlanEntryAptos,
@@ -124,6 +137,38 @@ func (r Aptos) BuildProcessTypes(cr libpak.ConfigurationResolver, app libcnb.App
 		})
 	}
 	return processes, nil
+}
+
+func (r Aptos) InitializeDeployWallet() (bool, error) {
+	enableDeploy := r.configResolver.ResolveBool("BP_ENABLE_APTOS_DEPLOY")
+	if enableDeploy {
+		deployPrivateKey, _ := r.configResolver.Resolve("BP_APTOS_DEPLOY_PRIVATE_KEY")
+		deployNetwork, _ := r.configResolver.Resolve("BP_APTOS_DEPLOY_NETWORK")
+		ok, err := r.InitializeWallet(deployPrivateKey, deployNetwork)
+		if !ok {
+			return false, fmt.Errorf("unable to initialize %s wallet\n%w", PlanEntryAptos, err)
+		}
+	}
+	return true, nil
+}
+
+func (r Aptos) InitializeWallet(deployPrivateKey, deployNetwork string) (bool, error) {
+	// init wallet
+	args := []string{"init", "--private-key", deployPrivateKey, "--assume-yes", "--network", deployNetwork}
+	r.Logger.Bodyf("Initializing %s wallet", PlanEntryAptos)
+	if _, err := r.Execute(PlanEntryAptos, args); err != nil {
+		return false, fmt.Errorf("unable to initialize wallet\n%w", err)
+	}
+
+	// Get faucet for devnet
+	if deployNetwork == "devnet" {
+		r.Logger.Bodyf("Getting faucet")
+		args = []string{"account", "fund-with-faucet", "--account", "default"}
+		if _, err := r.Execute(PlanEntryAptos, args); err != nil {
+			return false, fmt.Errorf("unable to get faucet\n%w", err)
+		}
+	}
+	return true, nil
 }
 
 func (r Aptos) Name() string {

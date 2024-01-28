@@ -40,15 +40,27 @@ api = "0.8"
   [[metadata.configurations]]
     build = true
     default = "true"
-    description = "Enable the Aptos run process"
-    name = "BP_ENABLE_APTOS_PROCESS"
+    description = "Enable the Aptos deploy"
+    name = "BP_ENABLE_APTOS_DEPLOY"
+  
+  [[metadata.configurations]]
+    build = true
+    description = "Configure the wallet private key for Aptos deploy"
+    name = "BP_APTOS_DEPLOY_PRIVATE_KEY"
+
+  [[metadata.configurations]]
+    build = true
+    default = "devnet"
+    description = "Configure the network for Aptos deploy"
+    name = "BP_APTOS_DEPLOY_NETWORK"
 
   [[metadata.dependencies]]
     id = "aptos"
     name = "Aptos"
     purl = "pkg:generic/aptos@2.4.0"
     sha256 = "b77ce25ca98b1998ef0c9b1a4f45c96e68e49ceae27d98f5bcdc3c79e88106f1"
-    uri = "https://github.com/aptos-labs/aptos-core/releases/download/aptos-cli-v2.4.0/aptos-cli-2.4.0-Ubuntu-22.04-x86_64.zip"
+    # uri = "https://github.com/aptos-labs/aptos-core/releases/download/aptos-cli-v2.4.0/aptos-cli-2.4.0-Ubuntu-22.04-x86_64.zip"
+    uri = "https://gitee.com/lispking/aptos-core/releases/download/aptos-cli-v2.4.0/aptos-cli-2.4.0-Ubuntu-22.04-x86_64.zip"
     stacks = ["*"]
     version = "2.4.0"
 
