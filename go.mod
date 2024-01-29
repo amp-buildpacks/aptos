@@ -1,6 +1,6 @@
 module github.com/amp-buildpacks/aptos
 
-go 1.21
+go 1.20
 
 require (
 	github.com/buildpacks/libcnb v1.30.1
