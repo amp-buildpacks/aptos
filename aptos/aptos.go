@@ -52,6 +52,7 @@ func NewAptos(dependency libpak.BuildpackDependency, cache libpak.DependencyCach
 func (r Aptos) Contribute(layer libcnb.Layer) (libcnb.Layer, error) {
 	r.LayerContributor.Logger = r.Logger
 	return r.LayerContributor.Contribute(layer, func(artifact *os.File) (libcnb.Layer, error) {
+		moveHome := filepath.Join(layer.Path, "move")
 		bin := filepath.Join(layer.Path, "bin")
 
 		r.Logger.Bodyf("Expanding %s to %s", artifact.Name(), bin)
@@ -81,8 +82,7 @@ func (r Aptos) Contribute(layer libcnb.Layer) (libcnb.Layer, error) {
 		r.Logger.Bodyf("Checking %s version: %s", PlanEntryAptos, version)
 
 		// set MOVE_HOME
-		moveHome := "/workspace"
-		r.Logger.Bodyf("Setting MOVE_HOME = %s", moveHome)
+		r.Logger.Bodyf("Setting MOVE_HOME=%s", moveHome)
 		if err := os.Setenv("MOVE_HOME", moveHome); err != nil {
 			return libcnb.Layer{}, fmt.Errorf("unable to set MOVE_HOME\n%w", err)
 		}
